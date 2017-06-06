@@ -58,6 +58,10 @@ class ViewController: UIViewController {
     }
     
     func animate() {
+        
+        let labelCopy = label.copyLabel()
+        view.addSubview(labelCopy)
+        
         var bounds = label.bounds
         
         label.font = label.font.withSize(100)
@@ -68,12 +72,30 @@ class ViewController: UIViewController {
         
         label.bounds = bounds
         label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        label.alpha = 0.0
         
         UIView.animate(withDuration: 2.0, animations: {
             self.label.transform = .identity
+            labelCopy.transform = CGAffineTransform(scaleX: 1 / scaleX, y: 1 / scaleY)
+        }, completion: { done in
+            labelCopy.removeFromSuperview()
+        })
+        
+        UIView.animate(withDuration: 1.0, animations: {
+            self.label.alpha = 1.0
+            labelCopy.alpha = 0.0
         }, completion: { done in
         })
     }
+}
 
+extension UILabel {
+    func copyLabel() -> UILabel {
+        let label = UILabel()
+        label.font = self.font
+        label.frame = self.frame
+        label.text = self.text
+        return label
+    }
 }
 
