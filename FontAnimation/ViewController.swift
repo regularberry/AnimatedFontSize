@@ -74,14 +74,16 @@ class ViewController: UIViewController {
         label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
         label.alpha = 0.0
         
-        UIView.animate(withDuration: 2.0, animations: {
+        let duration = 1.0
+        
+        UIView.animate(withDuration: duration, animations: {
             self.label.transform = .identity
             labelCopy.transform = CGAffineTransform(scaleX: 1 / scaleX, y: 1 / scaleY)
         }, completion: { done in
             labelCopy.removeFromSuperview()
         })
         
-        UIView.animate(withDuration: 1.0, animations: {
+        UIView.animate(withDuration: duration / 2, animations: {
             self.label.alpha = 1.0
             labelCopy.alpha = 0.0
         }, completion: { done in
