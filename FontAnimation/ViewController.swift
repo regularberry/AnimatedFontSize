@@ -13,20 +13,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var label: UILabel!
     var isSmall: Bool = true
     
-    var fontSize: CGFloat {
-        return isSmall ? 20 : 100
-    }
-    
-    var finalBounds: CGRect {
-        let font = label.font.withSize(fontSize)
-        let tempLabel = UILabel()
-        tempLabel.font = font
-        
-        var bounds = label.bounds
-        bounds.size = tempLabel.intrinsicContentSize
-        return bounds
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -41,23 +27,24 @@ class ViewController: UIViewController {
     
     
     @IBAction func reset(_ sender: Any) {
-        let font = label.font.withSize(20)
+        let font = label.font.withSize(100)
         var bounds = label.bounds
         label.font = font
         bounds.size = label.intrinsicContentSize
         label.bounds = bounds
+        isSmall = false
     }
 
     @IBAction func animateFont(_ sender: Any) {
+        if isSmall {
+            enlarge()
+        } else {
+            shrink()
+        }
         isSmall = !isSmall
-        animate()
     }
     
     func enlarge() {
-        
-    }
-    
-    func animate() {
         
         let labelCopy = label.copyLabel()
         view.addSubview(labelCopy)
@@ -87,6 +74,25 @@ class ViewController: UIViewController {
             self.label.alpha = 1.0
             labelCopy.alpha = 0.0
         }, completion: { done in
+        })
+    }
+    
+    func shrink() {
+        let labelCopy = label.copyLabel()
+        labelCopy.font = label.font.withSize(20)
+        
+        var bounds = labelCopy.bounds
+        bounds.size = labelCopy.intrinsicContentSize
+        let scaleX = bounds.size.width / label.frame.size.width
+        let scaleY = bounds.size.height / label.frame.size.height
+        
+        let duration = 1.0
+        UIView.animate(withDuration: duration, animations: {
+            self.label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        }, completion: { done in
+            self.label.font = labelCopy.font
+            self.label.transform = .identity
+            self.label.bounds = bounds
         })
     }
 }
