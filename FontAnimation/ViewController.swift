@@ -33,9 +33,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func reset(_ sender: Any) {
-        let font = label.font.withSize(fontSizeSmall)
         var bounds = label.bounds
-        label.font = font
+        label.font = label.font.withSize(fontSizeSmall)
         bounds.size = label.intrinsicContentSize
         label.bounds = bounds
         isSmall = true
@@ -99,19 +98,18 @@ class ViewController: UIViewController {
     
     func shrink() {
         let labelCopy = label.copyLabel()
+        var smallerBounds = labelCopy.bounds
         labelCopy.font = label.font.withSize(fontSizeSmall)
+        smallerBounds.size = labelCopy.intrinsicContentSize
         
-        var bounds = labelCopy.bounds
-        bounds.size = labelCopy.intrinsicContentSize
-        let scaleX = bounds.size.width / label.frame.size.width
-        let scaleY = bounds.size.height / label.frame.size.height
+        let shrinkTransform = scaleTransform(from: label.bounds.size, to: smallerBounds.size)
         
         UIView.animate(withDuration: duration, animations: {
-            self.label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+            self.label.transform = shrinkTransform
         }, completion: { done in
             self.label.font = labelCopy.font
             self.label.transform = .identity
-            self.label.bounds = bounds
+            self.label.bounds = smallerBounds
         })
     }
     
@@ -119,22 +117,21 @@ class ViewController: UIViewController {
         let labelCopy = label.copyLabel()
         view.addSubview(labelCopy)
         
+        var smallerBounds = label.bounds
         label.font = label.font.withSize(fontSizeSmall)
+        smallerBounds.size = label.intrinsicContentSize
         
-        var bounds = label.bounds
-        bounds.size = label.intrinsicContentSize
-        let scaleX = bounds.size.width / label.frame.size.width
-        let scaleY = bounds.size.height / label.frame.size.height
-        
-        label.transform = CGAffineTransform(scaleX: 1 / scaleX, y: 1 / scaleY)
+        label.transform = scaleTransform(from: smallerBounds.size, to: label.bounds.size)
         label.alpha = 0.0
         
+        let shrinkTransform = scaleTransform(from: label.bounds.size, to: smallerBounds.size)
+        
         UIView.animate(withDuration: duration, animations: {
-            labelCopy.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+            labelCopy.transform = shrinkTransform
             self.label.transform = .identity
         }, completion: { done in
             self.label.transform = .identity
-            self.label.bounds = bounds
+            self.label.bounds = smallerBounds
         })
         
         let percUntilFade = 0.8
