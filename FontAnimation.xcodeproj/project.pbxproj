@@ -408,6 +408,7 @@
 				D8FD6C811ED39F3600442809 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8FD6C821ED39F3600442809 /* Build configuration list for PBXNativeTarget "FontAnimationTests" */ = {
 			isa = XCConfigurationList;
@@ -416,6 +417,7 @@
 				D8FD6C841ED39F3600442809 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
