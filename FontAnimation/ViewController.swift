@@ -48,6 +48,23 @@ class ViewController: UIViewController {
         isSmall = !isSmall
     }
     
+    func badEnlarge() {
+        let labelCopy = label.copyLabel()
+        var bounds = labelCopy.bounds
+        
+        labelCopy.font = labelCopy.font.withSize(100)
+        bounds.size = labelCopy.intrinsicContentSize
+        
+        let scaleX = bounds.size.width / label.frame.size.width
+        let scaleY = bounds.size.height / label.frame.size.height
+        
+        let duration = 1.0
+        
+        UIView.animate(withDuration: duration, animations: {
+            self.label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        })
+    }
+    
     func enlarge() {
         if crossFading {
             enlargeWithCrossFade()
@@ -152,8 +169,8 @@ class ViewController: UIViewController {
             self.label.bounds = bounds
         })
         
-        let multiple: Double = 5
-        UIView.animate(withDuration: duration/multiple, delay: duration - (duration / multiple), options: .curveLinear, animations: {
+        let multiple: Double = 10
+        UIView.animate(withDuration: duration/multiple, delay: duration - (duration * 2 / multiple), options: .curveLinear, animations: {
             labelCopy.alpha = 0
             self.label.alpha = 1
         }, completion: { done in
