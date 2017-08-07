@@ -9,13 +9,15 @@
 import UIKit
 
 class ViewController: UIViewController {
-
-    @IBOutlet weak var label: UILabel!
-    var isSmall: Bool = true
     var crossFading: Bool {
         return crossFadeSwitch.isOn
     }
+    let duration = 1.0
+    let fontSizeSmall: CGFloat = 20
+    let fontSizeBig: CGFloat = 100
+    var isSmall: Bool = true
     
+    @IBOutlet weak var label: UILabel!
     @IBOutlet weak var crossFadeSwitch: UISwitch!
     
     override func viewDidLoad() {
@@ -24,14 +26,14 @@ class ViewController: UIViewController {
         
         reset(self)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
     @IBAction func reset(_ sender: Any) {
-        let font = label.font.withSize(20)
+        let font = label.font.withSize(fontSizeSmall)
         var bounds = label.bounds
         label.font = font
         bounds.size = label.intrinsicContentSize
@@ -41,102 +43,69 @@ class ViewController: UIViewController {
 
     @IBAction func animateFont(_ sender: Any) {
         if isSmall {
-            enlarge()
+            if crossFading {
+                enlargeWithCrossFade()
+            } else {
+                enlarge()
+            }
         } else {
-            shrink()
+            if crossFading {
+                shrinkWithCrossFade()
+            } else {
+                shrink()
+            }
         }
         isSmall = !isSmall
     }
     
-    func badEnlarge() {
-        let labelCopy = label.copyLabel()
-        var bounds = labelCopy.bounds
-        
-        labelCopy.font = labelCopy.font.withSize(100)
-        bounds.size = labelCopy.intrinsicContentSize
-        
-        let scaleX = bounds.size.width / label.frame.size.width
-        let scaleY = bounds.size.height / label.frame.size.height
-        
-        let duration = 1.0
-        
-        UIView.animate(withDuration: duration, animations: {
-            self.label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
-        })
-    }
-    
     func enlarge() {
-        if crossFading {
-            enlargeWithCrossFade()
-            return
-        }
+        var biggerBounds = label.bounds
+        label.font = label.font.withSize(fontSizeBig)
+        biggerBounds.size = label.intrinsicContentSize
         
-        var bounds = label.bounds
+        label.transform = scaleTransform(from: biggerBounds.size, to: label.bounds.size)
+        label.bounds = biggerBounds
         
-        label.font = label.font.withSize(100)
-        bounds.size = label.intrinsicContentSize
-        
-        let scaleX = label.frame.size.width / bounds.size.width
-        let scaleY = label.frame.size.height / bounds.size.height
-        
-        label.bounds = bounds
-        label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
-        
-        let duration = 1.0
-        
-        UIView.animate(withDuration: duration, animations: {
+        UIView.animate(withDuration: duration) {
             self.label.transform = .identity
-        }, completion: { done in
-        })
+        }
     }
     
     func enlargeWithCrossFade() {
         let labelCopy = label.copyLabel()
         view.addSubview(labelCopy)
         
-        var bounds = label.bounds
+        var biggerBounds = label.bounds
+        label.font = label.font.withSize(fontSizeBig)
+        biggerBounds.size = label.intrinsicContentSize
         
-        label.font = label.font.withSize(100)
-        bounds.size = label.intrinsicContentSize
-        
-        let scaleX = label.frame.size.width / bounds.size.width
-        let scaleY = label.frame.size.height / bounds.size.height
-        
-        label.bounds = bounds
-        label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        label.transform = scaleTransform(from: biggerBounds.size, to: label.bounds.size)
+        let enlargeTransform = scaleTransform(from: label.bounds.size, to: biggerBounds.size)
+        label.bounds = biggerBounds
         label.alpha = 0.0
-        
-        let duration = 1.0
         
         UIView.animate(withDuration: duration, animations: {
             self.label.transform = .identity
-            labelCopy.transform = CGAffineTransform(scaleX: 1 / scaleX, y: 1 / scaleY)
+            labelCopy.transform = enlargeTransform
         }, completion: { done in
             labelCopy.removeFromSuperview()
         })
         
-        UIView.animate(withDuration: duration / 2, animations: {
+        UIView.animate(withDuration: duration / 2) {
             self.label.alpha = 1.0
             labelCopy.alpha = 0.0
-        }, completion: { done in
-        })
+        }
     }
     
     func shrink() {
-        if crossFading {
-            shrinkWithCrossFade()
-            return
-        }
-        
         let labelCopy = label.copyLabel()
-        labelCopy.font = label.font.withSize(20)
+        labelCopy.font = label.font.withSize(fontSizeSmall)
         
         var bounds = labelCopy.bounds
         bounds.size = labelCopy.intrinsicContentSize
         let scaleX = bounds.size.width / label.frame.size.width
         let scaleY = bounds.size.height / label.frame.size.height
         
-        let duration = 1.0
         UIView.animate(withDuration: duration, animations: {
             self.label.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
         }, completion: { done in
@@ -150,7 +119,7 @@ class ViewController: UIViewController {
         let labelCopy = label.copyLabel()
         view.addSubview(labelCopy)
         
-        label.font = label.font.withSize(20)
+        label.font = label.font.withSize(fontSizeSmall)
         
         var bounds = label.bounds
         bounds.size = label.intrinsicContentSize
@@ -160,7 +129,6 @@ class ViewController: UIViewController {
         label.transform = CGAffineTransform(scaleX: 1 / scaleX, y: 1 / scaleY)
         label.alpha = 0.0
         
-        let duration = 1.0
         UIView.animate(withDuration: duration, animations: {
             labelCopy.transform = CGAffineTransform(scaleX: scaleX, y: scaleY)
             self.label.transform = .identity
@@ -169,13 +137,20 @@ class ViewController: UIViewController {
             self.label.bounds = bounds
         })
         
-        let multiple: Double = 10
-        UIView.animate(withDuration: duration/multiple, delay: duration - (duration * 2 / multiple), options: .curveLinear, animations: {
+        let percUntilFade = 0.8
+        UIView.animate(withDuration: duration - (duration * percUntilFade), delay: duration * percUntilFade, options: .curveLinear, animations: {
             labelCopy.alpha = 0
             self.label.alpha = 1
         }, completion: { done in
             labelCopy.removeFromSuperview()
         })
+    }
+    
+    private func scaleTransform(from: CGSize, to: CGSize) -> CGAffineTransform {
+        let scaleX = to.width / from.width
+        let scaleY = to.height / from.height
+        
+        return CGAffineTransform(scaleX: scaleX, y: scaleY)
     }
 }
 
@@ -188,4 +163,3 @@ extension UILabel {
         return label
     }
 }
-
